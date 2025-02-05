@@ -62,9 +62,13 @@ def generate_recommendations(stock_data, model, ticker):
         st.error(f"Prediction error: {e}")
         return "Unable to generate recommendation due to prediction error."
     
-    if prediction > latest_data['Close'] and sentiment == 'Positive':
+    # Extract the first prediction value
+    predicted_price = prediction[0]  # Get the first element from the prediction array
+    
+    # Compare the predicted price with the actual closing price
+    if predicted_price > latest_data['Close'] and sentiment == 'Positive':
         return 'Buy'
-    elif prediction < latest_data['Close'] and sentiment == 'Negative':
+    elif predicted_price < latest_data['Close'] and sentiment == 'Negative':
         return 'Sell'
     else:
         return 'Hold'
