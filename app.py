@@ -55,8 +55,15 @@ def generate_recommendations(stock_data, model, ticker):
     # Debugging output
     st.write("Latest Features for Prediction:", latest_features)
     
+    # Ensure the features are in the correct format
+    latest_features = np.array(latest_features, dtype=float)
+    
     # Make the prediction
-    prediction = model.predict(latest_features)
+    try:
+        prediction = model.predict(latest_features)
+    except ValueError as e:
+        st.error(f"Prediction error: {e}")
+        return "Unable to generate recommendation due to prediction error."
     
     if prediction > latest_data['Close'] and sentiment == 'Positive':
         return 'Buy'
