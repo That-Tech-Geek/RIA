@@ -52,11 +52,8 @@ def generate_recommendations(stock_data, model, ticker):
         st.error("Latest data contains NaN values. Please check the stock data.")
         return "Unable to generate recommendation due to missing data."
     
-    # Debugging output
-    st.write("Latest Features for Prediction:", latest_features)
-    
     # Ensure the features are in the correct format
-    latest_features = np.array(latest_features, dtype=float)
+    latest_features = np.array(latest_features, dtype=float).reshape(1, -1)  # Ensure it's 2D
     
     # Make the prediction
     try:
@@ -71,7 +68,7 @@ def generate_recommendations(stock_data, model, ticker):
         return 'Sell'
     else:
         return 'Hold'
-
+        
 # Define a function to visualize the stock data and predictions using Plotly
 def visualize_data(stock_data, model):
     X = stock_data[['MA_10', 'MA_50', 'MA_200', 'Daily_Return']].dropna()
@@ -80,7 +77,7 @@ def visualize_data(stock_data, model):
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=stock_data.index, y=stock_data['Close'], mode='lines', name='Actual', line=dict(color='blue')))
-    fig.add_trace(go.Scatter(x=stock_data.index[X.index], y=y_pred, mode='lines', name='Predicted', line=dict(color='orange')))
+    fig.add_trace(go.Scatter(x=X.index, y=y_pred, mode='lines', name='Predicted', line=dict(color='orange')))
     
     fig.update_layout(title='Stock Price Prediction',
                       xaxis_title='Date',
@@ -89,7 +86,7 @@ def visualize_data(stock_data, model):
                       hovermode='x unified')
     
     st.plotly_chart(fig)
-
+    
 # Streamlit dashboard
 def main():
     st.title("Investment Advisor Dashboard")
