@@ -43,7 +43,21 @@ def fetch_news_sentiment(ticker):
 def generate_recommendations(stock_data, model, ticker):
     sentiment = fetch_news_sentiment(ticker)
     latest_data = stock_data.iloc[-1]
-    prediction = model.predict([[latest_data['MA_10'], latest_data['MA_50'], latest_data['MA_200'], latest_data['Daily_Return']]])
+    
+    # Prepare the features for prediction
+    latest_features = [[latest_data['MA_10'], latest_data['MA_50'], latest_data['MA_200'], latest_data['Daily_Return']]]
+    
+    # Check for NaN values
+    if any(pd.isna(latest_features[0])):
+        st.error("Latest data contains NaN values. Please check the stock data.")
+        return "Unable to generate recommendation due to missing data."
+    
+    # Debugging output
+    st.write("Latest Features for Prediction:", latest_features)
+    
+    # Make the prediction
+    prediction = model.predict(latest_features)
+    
     if prediction > latest_data['Close'] and sentiment == 'Positive':
         return 'Buy'
     elif prediction < latest_data['Close'] and sentiment == 'Negative':
