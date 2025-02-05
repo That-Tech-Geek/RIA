@@ -4,9 +4,9 @@ import yfinance as yf
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
 import requests
 import streamlit as st
+import plotly.graph_objects as go
 
 # Define a function to fetch historical stock data
 def fetch_stock_data(ticker, start_date, end_date):
@@ -51,22 +51,23 @@ def generate_recommendations(stock_data, model, ticker):
     else:
         return 'Hold'
 
-# Define a function to visualize the stock data and predictions
+# Define a function to visualize the stock data and predictions using Plotly
 def visualize_data(stock_data, model):
     X = stock_data[['MA_10', 'MA_50', 'MA_200', 'Daily_Return']].dropna()
     y = stock_data['Close'].loc[X.index]
     y_pred = model.predict(X)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=stock_data.index, y=stock_data['Close'], mode='lines', name='Actual', line=dict(color='blue')))
+    fig.add_trace(go.Scatter(x=stock_data.index[X.index], y=y_pred, mode='lines', name='Predicted', line=dict(color='orange')))
     
-    plt.figure(figsize=(12, 6))
-    plt.plot(stock_data.index, stock_data['Close'], label='Actual', color='blue')
-    plt.plot(stock_data.index[X.index], y_pred, label='Predicted', color='orange')
-    plt.title('Stock Price Prediction')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    st.pyplot(plt)
+    fig.update_layout(title='Stock Price Prediction',
+                      xaxis_title='Date',
+                      yaxis_title='Price',
+                      legend=dict(x=0, y=1),
+                      hovermode='x unified')
+    
+    st.plotly_chart(fig)
 
 # Streamlit dashboard
 def main():
